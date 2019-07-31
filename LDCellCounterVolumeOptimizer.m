@@ -1,7 +1,17 @@
-%% Choose Folder(s) With Images to Analyze
+%% Approximate Cell Volume Value for Cell Counting
 clear all
 close all
 
+%% Adds relevant functions to path
+% Works as long as folders have not been moved around
+tempPath = cd;
+funcName = length(mfilename);
+funcPath = mfilename('fullpath');
+funcPath = funcPath(1:end-funcName);
+cd(funcPath)
+addpath(genpath([funcPath 'Dependencies']));
+cd(tempPath)
+%% Load, Create, and Save Lists
 answer = questdlg('Use a previous list of directories?');
 if strcmp(answer,'Yes') == 1
     [listfile,listpath]=uigetfile('.mat','Choose a previous list a directories.');
@@ -45,40 +55,14 @@ end
 %% Create Filtered Stacks
 for thisFile = 1:size(pathlist,2)
     current=pathlist{3,thisFile};
-    cd(pathlist{2,thisFile})
-    
+    cd(pathlist{2,thisFile})    
     files = dir('*.mat'); %Check Directory for default filenames
+    
+    %Scale and Process Input Image Stack
     try
         load([current '_FilteredStack.mat'])
     catch
-    [stack,meta] = getImages(current);    
-    if size(stack,1) == 2048
-        tempstack = zeros(512,512,size(stack,3));
-        for i = 1:size(stack,3)
-            tempstack(:,:,i) = imresize(stack(:,:,i),.25);
-        end
-        clear stack
-        stack = tempstack;
-        clear tempstack
-    end        
-    %pixel size in microns
-    xyPix = 1.3;
-    zPix = 0.53;
-    
-    %desired cell diameter in microns
-    CDlow = 14;
-    CDhigh = 23;
-    CDi = mean([CDlow CDhigh]);
-    
-    %filter size and object detection window size
-    fxy = CDi/xyPix;
-    fz = CDi/zPix;
-    
-    %Cell Volume (pixels) based on expected size
-    cv = 8500;% fxy^2*fz;
-    
-    stack2 = imadjustn(uint8(stack));
-    b=bpass3dMB(stack2, [1 1 1], [fxy fxy  fz],[0 0]);
+    [b,meta] = formatImages(current);
     save(strcat(current,'_FilteredStack.mat'),'b')
     end
 end
@@ -98,9 +82,9 @@ Area2{i} = cat(1,stats.Area);
 end
 
 %%Then optimize against data
-cv0 = 8500;
-lb = 2000;
-ub = 20000;
+cv0 = 1417;
+lb = 333;
+ub = 3333;
 cvest = fmincon(@(cv) countcells(pathlist,Area2,cv),cv0,[],[],[],[],lb,ub);
 
 cv = cvest;

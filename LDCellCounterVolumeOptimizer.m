@@ -83,7 +83,7 @@ end
 
 %%Then optimize against data
 cv0 = 1417;
-lb = 333;
+lb = 1;
 ub = 3333;
 cvest = fmincon(@(cv) countcells(pathlist,Area2,cv),cv0,[],[],[],[],lb,ub);
 

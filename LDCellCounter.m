@@ -69,9 +69,13 @@ for thisPath = 1:size(dirlist,2)
         end
         %ShowStack(b)
         
+        % Normalize values in processed stack
+        scaleB = 255/max(b(:));        
+        c = imadjustn(uint8(round(b*scaleB)));
+        
         d = zeros(size(b));
-        CO = 150;
-        d = b>CO;
+        CO = 100;
+        d = c>CO;
         e = bwlabeln(d);
         clear stats
         stats = regionprops(e,'Area','Image');

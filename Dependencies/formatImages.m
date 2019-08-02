@@ -1,6 +1,7 @@
 % Image Processing Instructions for Cell Counter Program
 function [processedImage,meta] = formatImages(filename)
 current = filename;
+
 [stack,meta] = getImages(current);
 
 prevScaleX = meta.sizeX/meta.OrigSizeX;
@@ -52,3 +53,4 @@ fz = CDi/zPix;
 
 stack2 = imadjustn(uint8(stack));
 processedImage=bpass3dMB(stack2, [1 1 1], [fx fy fz],[0 0]);
+

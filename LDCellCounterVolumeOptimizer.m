@@ -55,30 +55,33 @@ end
 %% Create Filtered Stacks
 for thisFile = 1:size(pathlist,2)
     current=pathlist{3,thisFile};
-    cd(pathlist{2,thisFile})    
+    cd(pathlist{2,thisFile})
     files = dir('*.mat'); %Check Directory for default filenames
     
     %Scale and Process Input Image Stack
     try
         load([current '_FilteredStack.mat'])
     catch
-    [b,meta] = formatImages(current);
-    save(strcat(current,'_FilteredStack.mat'),'b')
+        [b,meta] = formatImages(current);
+        save(strcat(current,'_FilteredStack.mat'),'b')
     end
 end
 %% Calculate Optimal Volume
 
 %First index data for each sample
 for i = 1:size(pathlist,2)
-clear b d e
-load([pathlist{1,i} '_FilteredStack.mat'])    
-d = zeros(size(b));
-CO = 150;
-d = b>CO;
-e = bwlabeln(d);
-clear stats
-stats = regionprops(e,'Area','Image');
-Area2{i} = cat(1,stats.Area);
+    clear b d e
+    load([pathlist{1,i} '_FilteredStack.mat'])
+    % Normalize values in processed stack
+    scaleB = 255/max(b(:));
+    c = imadjustn(uint8(round(b*scaleB)));    
+    d = zeros(size(b));
+    CO = 100;
+    d = c>CO;
+    e = bwlabeln(d);
+    clear stats
+    stats = regionprops(e,'Area','Image');
+    Area2{i} = cat(1,stats.Area);
 end
 
 %%Then optimize against data
@@ -97,7 +100,7 @@ for i = 1:size(Area2,2)
     NumCells(i) = sum(Area3);
     lsqi(i) = (NumCells(i) - pathlist{4,i})^2;
 end
-    lsq = sqrt(sum(lsqi));
+lsq = sqrt(sum(lsqi));
 
 save([listpath 'CellVolumeEstimate.mat'], 'cv','NumCells','pathlist')
 cd(listpath)
@@ -112,5 +115,5 @@ for i = 1:size(Area2,2)
     NumCells(i) = sum(Area3);
     lsqi(i) = (NumCells(i) - pathlist{4,i})^2;
 end
-    lsq = sqrt(sum(lsqi));
+lsq = sqrt(sum(lsqi));
 end

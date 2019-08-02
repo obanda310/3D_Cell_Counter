@@ -65,7 +65,7 @@ for thisPath = 1:size(dirlist,2)
             load([current '_FilteredStack.mat'])
         catch
             [b,meta] = formatImages(current);
-            save(strcat(current,'_FilteredStack.mat'),'b')
+            save(strcat(current,'_FilteredStack.mat'),'b')            
         end
         %ShowStack(b)
         

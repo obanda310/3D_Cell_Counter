@@ -15,6 +15,7 @@ function [images,meta,metadata] = getImages(file)
     % path available for this code
     addpath(genpath('bfmatlab'));
     %%
+    tic
     clear file images
     % Read into matlab
     file = bfopen(filename);
@@ -23,16 +24,17 @@ function [images,meta,metadata] = getImages(file)
     % Images are stored in the first cell in the file cell array
     % imageData = file{1,1};
     % Get number of images (z-slices) from file 
-    noImgs = size(file{1,1},1);
-    % Preallocate 3D image matrix
-    %images = zeros(imgRows,imgCols,noImgs);
-    % Store images in one 3D image matrix (instead of file cell array)
-    for i = 1:noImgs
-        % Column 1 in imageData contains the image grayscale intensity 
-        % matrices; row index i corresponds to position in z-stack
-        images(:,:,i) = file{1,1}{i,1};
-        file{1,1}{i,1} = [];
-    end
+%     noImgs = size(file{1,1},1);
+%     % Preallocate 3D image matrix
+%     images = zeros(imgRows,imgCols,noImgs);
+%     % Store images in one 3D image matrix (instead of file cell array)
+%     for i = 1:noImgs
+%         %Column 1 in imageData contains the image grayscale intensity 
+%         %matrices; row index i corresponds to position in z-stack        
+%         images(:,:,i) = file{1,1}{i,1};        
+%     end
+    images = cat(3,file{1,1}{:,1});
+    toc
     %% Read metadata
     if nargout > 1;
     % Metadata are stored in the second cell in the file cell array
